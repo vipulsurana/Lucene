@@ -1,0 +1,36 @@
+package pkg.updations;
+
+import java.io.File;
+
+import org.apache.lucene.document.Document;
+import org.apache.lucene.index.DirectoryReader;
+import org.apache.lucene.search.IndexSearcher;
+import org.apache.lucene.search.Query;
+import org.apache.lucene.search.ScoreDoc;
+import org.apache.lucene.store.Directory;
+import org.apache.lucene.store.FSDirectory;
+
+import pkg.lucene.LuceneConstants;
+
+public class DisplayAllUsersScore {
+
+	public static void main(String[] args) {
+		
+	    Directory d2 = FSDirectory.open(new File(LuceneConstants.INDEX_DIR));	    
+		DirectoryReader ireader = DirectoryReader.open(d2);	    
+	    IndexSearcher isearcher = new IndexSearcher(ireader);
+		Query q = new Query();
+	    ScoreDoc[] hits = isearcher.search(q, null, 1000).scoreDocs;
+	    
+		for (int i = 0; i < hits.length; i++) {
+			Document hitDoc = isearcher.doc(hits[i].doc);
+			int docId = hits[i].doc;
+			Document d = isearcher.doc(docId);
+			System.out.println("UserId: " + hitDoc.get("userid"));
+			System.out.println("Name: " +d.get("firstname") + " " + d.get("lastname"));
+			System.out.println("Document ID: " + docId + ", Score: " + hits[i].score);
+			//System.out.println("Explanation: " + isearcher.explain(queryParsing, docId));
+		}
+	}
+
+}

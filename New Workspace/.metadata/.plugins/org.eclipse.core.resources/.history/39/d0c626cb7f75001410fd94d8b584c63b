@@ -1,0 +1,9 @@
+package pkg.updations;
+
+public class DisplayAllUsersScore {
+
+	public static void main(String[] args) {
+		
+	}
+
+}

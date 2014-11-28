@@ -1,0 +1,36 @@
+package pkg.updations;
+
+import java.io.File;
+import java.io.IOException;
+import java.sql.SQLException;
+
+import org.apache.lucene.analysis.standard.StandardAnalyzer;
+import org.apache.lucene.index.IndexWriter;
+import org.apache.lucene.index.IndexWriterConfig;
+import org.apache.lucene.store.Directory;
+import org.apache.lucene.store.FSDirectory;
+import org.apache.lucene.util.Version;
+
+import pkg.lucene.LuceneConstants;
+
+public class DeleteAllIndex {
+
+	public static void main(String[] args) throws SQLException, IOException, ClassNotFoundException {
+		
+		System.out.println("Start");
+
+	    // To store an index on disk, use this instead:
+	    Directory d2 = FSDirectory.open(new File(LuceneConstants.INDEX_DIR));
+	    
+	    IndexWriterConfig config = new IndexWriterConfig(Version.LUCENE_4_10_2, new StandardAnalyzer());
+	    IndexWriter iwriter = new IndexWriter(d2, config);
+		
+		//deletes all the documents
+		iwriter.deleteAll();
+		iwriter.commit();
+		iwriter.close();
+		
+		System.out.println("Finish");
+	}
+
+}

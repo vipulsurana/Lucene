@@ -1,0 +1,53 @@
+package pkg.updations;
+
+import java.io.File;
+import java.io.IOException;
+import java.sql.*;
+
+import org.apache.lucene.analysis.standard.StandardAnalyzer;
+import org.apache.lucene.document.*;
+import org.apache.lucene.document.Field.*;
+import org.apache.lucene.index.IndexWriter;
+import org.apache.lucene.index.IndexWriterConfig;
+import org.apache.lucene.store.Directory;
+import org.apache.lucene.store.FSDirectory;
+import org.apache.lucene.util.Version;
+
+import pkg.database.JdbcConstants;
+import pkg.lucene.LuceneConstants;
+
+public class CreateBasicIndex {
+
+	public static void main(String[] args) throws SQLException, IOException, ClassNotFoundException {
+		System.out.println("Start");
+		Class.forName(JdbcConstants.driversName);
+		
+		Connection con = DriverManager.getConnection(JdbcConstants.connectionString,JdbcConstants.userName,JdbcConstants.passWord);
+		
+		String luceneQuery = "SELECT * FROM tbl_users";
+		Statement s = con.createStatement();
+		ResultSet rs = s.executeQuery(luceneQuery);
+		
+	    // Store the index in memory:
+	    //Directory d1 = new RAMDirectory();
+
+	    // To store an index on disk, use this instead:
+	    Directory d2 = FSDirectory.open(new File(LuceneConstants.INDEX_DIR));
+	    
+	    IndexWriterConfig config = new IndexWriterConfig(Version.LUCENE_4_10_2, new StandardAnalyzer());
+	    IndexWriter iwriter = new IndexWriter(d2, config);
+
+		while(rs.next()){
+			Document doc = new Document();
+			doc.add(new StringField("userid",rs.getString(1), Store.YES));
+			doc.add(new TextField("firstname",rs.getString(2), Store.YES));
+		    doc.add(new TextField("lastname",rs.getString(3), Store.YES));
+		    iwriter.addDocument(doc);
+		}
+		
+		iwriter.commit();
+		iwriter.close();
+		
+		System.out.println("Finish");
+	}
+}
